@@ -7,6 +7,10 @@ RUN npm install
 
 COPY . .
 
+#Variables de entorno para habilitar el polling
+ENV CHOKIDAR_USEPOLLING=true
+ENV WATCHPACK_POLLING=true
+
 EXPOSE 3000
 
 CMD ["npm", "run", "start:dev"]
