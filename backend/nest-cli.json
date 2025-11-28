@@ -3,12 +3,6 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
-    "deleteOutDir": false,
-    "watchAssets": true,
-    "webpack": true
-  },
-  "watchOptions": {
-    "usePolling": true,
-    "interval": 1000
+    "deleteOutDir": true
   }
 }
