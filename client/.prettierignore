@@ -1,0 +1,13 @@
+# Dependencias
+node_modules
+
+# Build
+dist
+build
+
+# Caché
+.vite
+*.local
+
+# Cobertura
+coverage
