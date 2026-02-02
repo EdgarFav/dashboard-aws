@@ -1,7 +1,9 @@
+import Login from './components/login/Login';
+
 function App() {
   return (
     <>
-      <div className="text-9xl">Hello</div>
+      <Login />
     </>
   );
 }
