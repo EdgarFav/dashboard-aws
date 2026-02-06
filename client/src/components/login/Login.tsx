@@ -6,7 +6,7 @@ const Login = () => {
     <main className="min-h-screen grid grid-cols-1 md:grid-cols-2">
       <section
         className="hidden md:flex items-center justify-center bg-no-repeat bg-center bg-contain"
-        style={{ backgroundImage: `url(/login/cover-login.jpg)` }}
+        style={{ backgroundImage: 'url(/cover-login.jpg)' }}
       />
       <section className="flex flex-col items-center justify-center">
         <h3>icono de la empresa</h3>
