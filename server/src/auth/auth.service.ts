@@ -21,12 +21,13 @@ export class AuthService {
     }
 
     const user = await this.usersService.create(email, password);
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role: user.role };
 
     return {
       user: {
         id: user.id,
         email: user.email,
+        role: user.role,
       },
       access_token: this.jwtService.sign(payload),
     };
@@ -38,12 +39,13 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role: user.role };
 
     return {
       user: {
         id: user.id,
         email: user.email,
+        role: user.role,
       },
       access_token: this.jwtService.sign(payload),
     };

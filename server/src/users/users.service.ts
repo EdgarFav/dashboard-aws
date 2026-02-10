@@ -11,13 +11,22 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async create(email: string, password: string): Promise<User> {
+  async create(
+    email: string,
+    password: string,
+    role: string = 'user',
+  ): Promise<User> {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = this.usersRepository.create({
       email,
       password: hashedPassword,
+      role,
     });
     return this.usersRepository.save(user);
+  }
+
+  async findAll(): Promise<User[]> {
+    return this.usersRepository.find();
   }
 
   async findByEmail(email: string): Promise<User | null> {
