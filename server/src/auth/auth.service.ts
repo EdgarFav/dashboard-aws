@@ -21,6 +21,7 @@ export class AuthService {
     }
 
     const user = await this.usersService.create(email, password);
+    await this.usersService.updateLastLogin(user.id);
     const payload = { sub: user.id, email: user.email, role: user.role };
 
     return {
@@ -38,6 +39,8 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
+
+    await this.usersService.updateLastLogin(user.id);
 
     const payload = { sub: user.id, email: user.email, role: user.role };
 

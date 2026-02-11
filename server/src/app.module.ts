@@ -19,6 +19,7 @@ import { UsersModule } from './users/users.module';
       // port: 3307,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
+      timezone: 'Z',
       username: 'user',
       password: 'password',
       database: 'dashboard',

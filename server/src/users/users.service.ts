@@ -36,4 +36,8 @@ export class UsersService {
   async findById(id: number): Promise<User | null> {
     return this.usersRepository.findOne({ where: { id } });
   }
+
+  async updateLastLogin(id: number): Promise<void> {
+    await this.usersRepository.update(id, { lastLogin: new Date() });
+  }
 }
