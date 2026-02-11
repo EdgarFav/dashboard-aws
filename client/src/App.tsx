@@ -3,12 +3,21 @@ import HomePage from './pages/HomePage';
 import DashboardPage from './pages/DashboardPage';
 import { Toaster } from 'react-hot-toast';
 
+import { ProtectedRoute } from './auth/components/ProtectedRoute';
+
 function App() {
   return (
     <>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
       <Toaster position="top-center" reverseOrder={false} />
     </>
