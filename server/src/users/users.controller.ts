@@ -5,6 +5,7 @@ import {
   Body,
   UseGuards,
   ValidationPipe,
+  ConflictException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -20,6 +21,10 @@ export class UsersController {
   @Post()
   @Roles('admin')
   async create(@Body(ValidationPipe) registerDto: RegisterDto) {
+    const existingUser = await this.usersService.findByEmail(registerDto.email);
+    if (existingUser) {
+      throw new ConflictException('El usuario ya existe');
+    }
     return this.usersService.create(registerDto.email, registerDto.password);
   }
 
