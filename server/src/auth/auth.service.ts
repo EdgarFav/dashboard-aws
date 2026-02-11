@@ -29,6 +29,7 @@ export class AuthService {
         id: user.id,
         email: user.email,
         role: user.role,
+        lastLogin: user.lastLogin,
       },
       access_token: this.jwtService.sign(payload),
     };
@@ -41,14 +42,25 @@ export class AuthService {
     }
 
     await this.usersService.updateLastLogin(user.id);
+    // Fetch user again to get updated lastLogin
+    const updatedUser = await this.usersService.findById(user.id);
 
-    const payload = { sub: user.id, email: user.email, role: user.role };
+    if (!updatedUser) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+
+    const payload = {
+      sub: updatedUser.id,
+      email: updatedUser.email,
+      role: updatedUser.role,
+    };
 
     return {
       user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
+        id: updatedUser.id,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        lastLogin: updatedUser.lastLogin,
       },
       access_token: this.jwtService.sign(payload),
     };

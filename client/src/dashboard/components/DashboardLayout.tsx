@@ -20,6 +20,11 @@ function DashboardLayout() {
             Dashboard Gerencial
           </h1>
           <p className="text-sm text-gray-500">Bienvenido, {user?.email}</p>
+          {user?.lastLogin && (
+            <p className="text-xs text-gray-400">
+              Último acceso: {new Date(user.lastLogin).toLocaleString()}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-4">
           <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold uppercase">
