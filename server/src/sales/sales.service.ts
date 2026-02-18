@@ -43,4 +43,47 @@ export class SalesService {
     const sale = this.salesRepository.create(saleData);
     return this.salesRepository.save(sale);
   }
+
+  async getAnalytics() {
+    const sales = await this.salesRepository.find({
+      order: { date: 'ASC' },
+    });
+
+    // 1. Time Series Data (Daily Revenue)
+    const timeSeries: Record<string, number> = {};
+    sales.forEach((sale) => {
+      const dateStr = new Date(sale.date).toISOString().split('T')[0];
+      timeSeries[dateStr] = (timeSeries[dateStr] || 0) + Number(sale.amount);
+    });
+
+    // 2. Top Products by Revenue
+    const productStats: Record<string, number> = {};
+    sales.forEach((sale) => {
+      productStats[sale.productName] =
+        (productStats[sale.productName] || 0) + Number(sale.amount);
+    });
+    const topProducts = Object.entries(productStats)
+      .map(([name, revenue]) => ({ name, revenue }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+
+    // 3. Metrics
+    const totalRevenue = sales.reduce((sum, s) => sum + Number(s.amount), 0);
+    const totalTransactions = sales.length;
+    const averageOrderValue =
+      totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
+
+    return {
+      revenueByDay: Object.entries(timeSeries).map(([date, value]) => ({
+        date,
+        value,
+      })),
+      topProducts,
+      metrics: {
+        totalRevenue,
+        totalTransactions,
+        averageOrderValue,
+      },
+    };
+  }
 }

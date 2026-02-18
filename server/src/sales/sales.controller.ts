@@ -27,6 +27,11 @@ export class SalesController {
     return this.salesService.getStats();
   }
 
+  @Get('analytics')
+  async getAnalytics() {
+    return this.salesService.getAnalytics();
+  }
+
   @Post()
   @Roles('admin')
   async create(@Body(ValidationPipe) createSaleDto: CreateSaleDto) {

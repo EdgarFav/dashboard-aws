@@ -6,6 +6,7 @@ import { ProtectedRoute } from './auth/components/ProtectedRoute';
 import OverviewSection from './dashboard/sections/OverviewSection';
 import DataUploadSection from './dashboard/sections/DataUploadSection';
 import UsersSection from './dashboard/sections/UsersSection';
+import AnalyticsSection from './dashboard/sections/AnalyticsSection';
 
 function App() {
   return (
@@ -31,14 +32,7 @@ function App() {
               </div>
             }
           />
-          <Route
-            path="analytics"
-            element={
-              <div className="p-8 bg-white rounded-2xl border border-slate-100 shadow-sm text-center text-slate-400">
-                Analytics Empresarial (Próximamente)
-              </div>
-            }
-          />
+          <Route path="analytics" element={<AnalyticsSection />} />
           <Route path="users" element={<UsersSection />} />
         </Route>
 
