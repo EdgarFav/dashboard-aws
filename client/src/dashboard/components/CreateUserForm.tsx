@@ -3,10 +3,23 @@ import { createUserMethod } from '../services/users-service';
 import { useAuth } from '../../auth/context/AuthContext';
 import toast from 'react-hot-toast';
 import { AxiosError } from 'axios';
+import {
+  UserPlus,
+  Mail,
+  Lock,
+  UserCog,
+  Loader2,
+  ChevronRight,
+} from 'lucide-react';
 
-export const CreateUserForm = () => {
+interface CreateUserFormProps {
+  onSuccess?: () => void;
+}
+
+export const CreateUserForm = ({ onSuccess }: CreateUserFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('user');
   const [isLoading, setIsLoading] = useState(false);
   const { token } = useAuth();
 
@@ -16,10 +29,12 @@ export const CreateUserForm = () => {
 
     setIsLoading(true);
     try {
-      await createUserMethod(email, password);
+      await createUserMethod(email, password, role);
       toast.success('Usuario creado exitosamente');
       setEmail('');
       setPassword('');
+      setRole('user');
+      if (onSuccess) onSuccess();
     } catch (error) {
       if (error instanceof AxiosError) {
         toast.error(error.response?.data.message || 'Error al crear usuario');
@@ -35,34 +50,24 @@ export const CreateUserForm = () => {
     <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 max-w-md w-full animate-in fade-in duration-500">
       <div className="flex items-center space-x-3 mb-6">
         <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-            />
-          </svg>
+          <UserPlus size={24} />
         </div>
         <div>
           <h3 className="text-lg font-bold text-slate-900">
-            Registrar Usuario
+            {' '}
+            Registrar Usuario{' '}
           </h3>
           <p className="text-xs text-slate-500 font-medium">
-            Crea cuentas para tu equipo
+            {' '}
+            Crea cuentas para tu equipo{' '}
           </p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-slate-700 ml-1">
-            Email
+          <label className="text-sm font-semibold text-slate-700 ml-1 flex items-center gap-2">
+            <Mail size={14} className="text-slate-400" /> Email
           </label>
           <input
             type="email"
@@ -73,9 +78,10 @@ export const CreateUserForm = () => {
             required
           />
         </div>
+
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-slate-700 ml-1">
-            Contraseña
+          <label className="text-sm font-semibold text-slate-700 ml-1 flex items-center gap-2">
+            <Lock size={14} className="text-slate-400" /> Contraseña
           </label>
           <input
             type="password"
@@ -86,26 +92,47 @@ export const CreateUserForm = () => {
             required
           />
         </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-slate-700 ml-1 flex items-center gap-2">
+            <UserCog size={14} className="text-slate-400" /> Rol del Sistema
+          </label>
+          <div className="flex gap-2">
+            {['user', 'admin'].map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setRole(r)}
+                className={`flex-1 py-2 px-4 rounded-xl text-xs font-bold uppercase transition-all border ${
+                  role === r
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-100'
+                    : 'bg-slate-50 text-slate-500 border-slate-200 hover:border-indigo-200'
+                }`}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <button
           type="submit"
           disabled={isLoading}
           className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed group flex items-center justify-center space-x-2"
         >
-          <span>{isLoading ? 'Procesando...' : 'Crear Usuario'}</span>
-          {!isLoading && (
-            <svg
-              className="w-5 h-5 group-hover:translate-x-1 transition-transform"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M14 5l7 7m0 0l-7 7m7-7H3"
+          {isLoading ? (
+            <>
+              <Loader2 className="animate-spin" size={20} />
+              <span>Procesando...</span>
+            </>
+          ) : (
+            <>
+              <span>Crear Usuario</span>
+              <ChevronRight
+                className="group-hover:translate-x-1 transition-transform"
+                size={20}
               />
-            </svg>
+            </>
           )}
         </button>
       </form>

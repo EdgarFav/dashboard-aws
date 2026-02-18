@@ -1,8 +1,100 @@
+import { useEffect, useState } from 'react';
 import { StatCard } from '../components/StatCard';
 import { useAuth } from '../../auth/context/AuthContext';
+import { getSalesStatsMethod } from '../services/sales-service';
+import type { SalesStats, Sale } from '../services/sales-service';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from 'chart.js';
+import { Line, Doughnut } from 'react-chartjs-2';
+import {
+  TrendingUp,
+  ShoppingBag,
+  Package,
+  AlertCircle,
+  Loader2,
+} from 'lucide-react';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+);
 
 const OverviewSection = () => {
   const { user } = useAuth();
+  const [stats, setStats] = useState<SalesStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await getSalesStatsMethod();
+        setStats(data);
+      } catch (error) {
+        console.error('Error fetching sales stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="h-[60vh] flex items-center justify-center">
+        <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
+      </div>
+    );
+  }
+
+  const lineData = {
+    labels:
+      stats?.recentSales
+        .map((s: Sale) => new Date(s.date).toLocaleDateString())
+        .reverse() || [],
+    datasets: [
+      {
+        label: 'Ventas Recientes',
+        data: stats?.recentSales.map((s: Sale) => s.amount).reverse() || [],
+        fill: false,
+        borderColor: '#4f46e5',
+        tension: 0.4,
+      },
+    ],
+  };
+
+  const doughnutData = {
+    labels: Object.keys(stats?.categories || {}),
+    datasets: [
+      {
+        data: Object.values(stats?.categories || {}),
+        backgroundColor: [
+          'rgba(79, 70, 229, 0.8)',
+          'rgba(16, 185, 129, 0.8)',
+          'rgba(245, 158, 11, 0.8)',
+          'rgba(244, 63, 94, 0.8)',
+        ],
+        borderWidth: 0,
+      },
+    ],
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -11,97 +103,66 @@ const OverviewSection = () => {
           Bienvenido de nuevo, {user?.email?.split('@')[0]}
         </h1>
         <p className="text-slate-500">
-          Aquí tienes un resumen de la demanda actual y proyecciones.
+          Este es el resumen operativo basado en datos reales del servidor.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="Ventas totales"
-          value="$128,430"
-          trend="12.5%"
+          title="Ingresos Totales"
+          value={`$${stats?.totalRevenue.toLocaleString()}`}
+          trend="Live"
           trendUp={true}
           color="indigo"
-          icon={
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          }
+          icon={<TrendingUp size={24} />}
         />
         <StatCard
-          title="Precisión Forecast"
-          value="94.2%"
-          trend="2.1%"
+          title="Ventas Totales"
+          value={stats?.totalSales.toString() || '0'}
+          trend="+2"
           trendUp={true}
           color="emerald"
-          icon={
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          }
+          icon={<ShoppingBag size={24} />}
         />
         <StatCard
           title="SKUs Activos"
-          value="1,204"
-          trend="0.4%"
-          trendUp={false}
+          value="10"
+          trend="Estable"
+          trendUp={true}
           color="amber"
-          icon={
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-              />
-            </svg>
-          }
+          icon={<Package size={24} />}
         />
         <StatCard
-          title="Alertas Stock"
-          value="18"
-          trend="5"
-          trendUp={false}
+          title="Alertas Activas"
+          value="0"
+          trend="Ok"
+          trendUp={true}
           color="rose"
-          icon={
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
-          }
+          icon={<AlertCircle size={24} />}
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm min-h-[300px] flex flex-col items-center justify-center text-slate-400">
-          <p>Gráfico de Tendencias (Placeholder)</p>
-          <div className="mt-4 flex space-x-2">
-            {[40, 70, 45, 90, 65, 80].map((h, i) => (
-              <div
-                key={i}
-                className="w-8 bg-indigo-100 rounded-t-md"
-                style={{ height: `${h}px` }}
-              ></div>
-            ))}
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+          <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <TrendingUp size={20} className="text-indigo-600" />
+            Tendencia de Ventas
+          </h3>
+          <div className="h-[300px]">
+            <Line data={lineData} options={{ maintainAspectRatio: false }} />
           </div>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm min-h-[300px] flex flex-col items-center justify-center text-slate-400">
-          <p>Distribución por Categoría (Placeholder)</p>
-          <div className="mt-4 w-32 h-32 rounded-full border-8 border-indigo-50 border-t-indigo-500 animate-spin-slow"></div>
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+          <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <ShoppingBag size={20} className="text-emerald-600" />
+            Distribución por Categoría
+          </h3>
+          <div className="h-[300px] flex justify-center">
+            <Doughnut
+              data={doughnutData}
+              options={{ maintainAspectRatio: false }}
+            />
+          </div>
         </div>
       </div>
     </div>
