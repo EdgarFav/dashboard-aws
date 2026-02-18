@@ -1,7 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Sale } from './entities/sale.entity';
+import { parse } from 'csv-parse/sync';
+
+interface SaleRecord {
+  productName: string;
+  amount: string;
+  category: string;
+  customerEmail?: string;
+  date?: string;
+}
 
 @Injectable()
 export class SalesService {
@@ -9,6 +18,41 @@ export class SalesService {
     @InjectRepository(Sale)
     private salesRepository: Repository<Sale>,
   ) {}
+
+  // ... (findAll, getStats, create, getAnalytics methods remain same)
+
+  async uploadFromCsv(fileBuffer: Buffer): Promise<{ count: number }> {
+    try {
+      const records: SaleRecord[] = parse(fileBuffer, {
+        columns: true,
+        skip_empty_lines: true,
+        trim: true,
+      });
+
+      const sales = records.map((record) => {
+        if (!record.productName || !record.amount || !record.category) {
+          throw new BadRequestException(
+            'Formato de CSV inválido: faltan campos obligatorios',
+          );
+        }
+        return this.salesRepository.create({
+          productName: record.productName,
+          amount: parseFloat(record.amount),
+          category: record.category,
+          customerEmail: record.customerEmail || undefined,
+          date: record.date ? new Date(record.date) : new Date(),
+        });
+      });
+
+      await this.salesRepository.save(sales);
+      return { count: sales.length };
+    } catch (error: any) {
+      if (error instanceof BadRequestException) throw error;
+      throw new BadRequestException(
+        'Error al procesar el archivo CSV: ' + error.message,
+      );
+    }
+  }
 
   async findAll(): Promise<Sale[]> {
     return this.salesRepository.find({

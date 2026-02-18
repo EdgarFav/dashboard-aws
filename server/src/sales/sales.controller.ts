@@ -5,7 +5,10 @@ import {
   Body,
   UseGuards,
   ValidationPipe,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { SalesService } from './sales.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -16,6 +19,13 @@ import { CreateSaleDto } from './dto/create-sale.dto';
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class SalesController {
   constructor(private salesService: SalesService) {}
+
+  @Post('upload')
+  @Roles('admin')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    return this.salesService.uploadFromCsv(file.buffer);
+  }
 
   @Get()
   async findAll() {

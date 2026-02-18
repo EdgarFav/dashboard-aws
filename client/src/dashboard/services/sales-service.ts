@@ -40,3 +40,13 @@ export const getAnalyticsMethod = async (): Promise<AnalyticsData> => {
   const response = await apiClient.get<AnalyticsData>('sales/analytics');
   return response.data;
 };
+
+export const uploadSalesMethod = async (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return await apiClient.post('sales/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
