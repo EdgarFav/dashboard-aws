@@ -37,6 +37,18 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { id } });
   }
 
+  async update(id: number, updateData: Partial<User>): Promise<User | null> {
+    if (updateData.password) {
+      updateData.password = await bcrypt.hash(updateData.password, 10);
+    }
+    await this.usersRepository.update(id, updateData);
+    return this.findById(id);
+  }
+
+  async remove(id: number): Promise<void> {
+    await this.usersRepository.delete(id);
+  }
+
   async updateLastLogin(id: number): Promise<void> {
     await this.usersRepository.update(id, { lastLogin: new Date() });
   }
