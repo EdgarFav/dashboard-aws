@@ -22,7 +22,7 @@ export const Header = () => {
             Panel de Control /{' '}
             <span className="text-slate-900 font-bold">SmartForecast</span>
           </h2>
-          {user?.lastLogin && (
+          {user && (
             <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mt-0.5">
               Último acceso:{' '}
               <span className="text-slate-500">{lastLoginFormatted}</span>

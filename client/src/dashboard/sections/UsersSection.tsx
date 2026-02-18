@@ -39,7 +39,7 @@ const UsersSection = () => {
       await deleteUserMethod(id);
       toast.success('Usuario eliminado');
       fetchUsers();
-    } catch (error) {
+    } catch {
       toast.error('Error al eliminar usuario');
     }
   };
@@ -103,6 +103,15 @@ const UsersSection = () => {
                             addSuffix: true,
                             locale: es,
                           })}
+                        </p>
+                        <p className="text-[10px] text-indigo-400 font-medium mt-1">
+                          Último acceso:{' '}
+                          {u.lastLogin
+                            ? formatDistanceToNow(new Date(u.lastLogin), {
+                                addSuffix: true,
+                                locale: es,
+                              })
+                            : 'Nunca'}
                         </p>
                       </div>
                     </div>
