@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { SalesModule } from './sales/sales.module';
@@ -12,18 +12,19 @@ import { SalesModule } from './sales/sales.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'mysql_db',
-      // host: 'localhost',
-      port: 3306,
-      // port: 3307,
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
-      timezone: 'Z',
-      username: 'user',
-      password: 'password',
-      database: 'dashboard',
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'mysql',
+        host: configService.get<string>('DB_HOST'),
+        port: configService.get<number>('DB_PORT'),
+        username: configService.get<string>('DB_USERNAME'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_NAME'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true,
+        timezone: 'Z',
+      }),
     }),
     AuthModule,
     UsersModule,
