@@ -151,9 +151,12 @@ export const Sidebar = () => {
           <p className="text-sm text-slate-600 mb-3">
             ¿Necesitas ayuda con tus datos?
           </p>
-          <button className="w-full py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+          <a
+            href="mailto:soporte@smartforecast.com?subject=Soporte Técnico - SmartForecast&body=Hola, necesito ayuda con mis datos"
+            className="block w-full py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors text-center"
+          >
             Contactar IT
-          </button>
+          </a>
         </div>
       </div>
     </aside>

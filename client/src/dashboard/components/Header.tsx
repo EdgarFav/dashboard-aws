@@ -33,7 +33,7 @@ export const Header = () => {
 
       <div className="flex items-center space-x-6">
         {/* Notifications Placeholder */}
-        <button className="relative p-2 text-slate-400 hover:text-indigo-600 transition-colors">
+        {/* <button className="relative p-2 text-slate-400 hover:text-indigo-600 transition-colors">
           <svg
             className="w-6 h-6"
             fill="none"
@@ -48,7 +48,7 @@ export const Header = () => {
             />
           </svg>
           <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
-        </button>
+        </button> */}
 
         <div className="h-8 w-px bg-slate-100"></div>
 

@@ -162,7 +162,10 @@ const FormLogin = () => {
 
         <p className="mt-8 text-center text-sm text-slate-400">
           ¿Problemas con el acceso?{' '}
-          <a href="#" className="text-indigo-600 font-semibold hover:underline">
+          <a
+            href="mailto:soporte@smartforecast.com?subject=Soporte Técnico - SmartForecast&body=Hola, necesito ayuda con mi acceso."
+            className="text-indigo-600 font-semibold hover:underline cursor-pointer"
+          >
             Contactar Soporte
           </a>
         </p>
