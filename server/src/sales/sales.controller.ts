@@ -7,6 +7,7 @@ import {
   ValidationPipe,
   UseInterceptors,
   UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { SalesService } from './sales.service';
@@ -23,7 +24,10 @@ export class SalesController {
   @Post('upload')
   @Roles('admin')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+  async uploadFile(@UploadedFile() file?: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('No se ha subido ningún archivo');
+    }
     return this.salesService.uploadFromCsv(file.buffer);
   }
 
@@ -40,6 +44,11 @@ export class SalesController {
   @Get('analytics')
   async getAnalytics() {
     return this.salesService.getAnalytics();
+  }
+
+  @Get('forecast')
+  async getForecast() {
+    return this.salesService.getForecast();
   }
 
   @Post()

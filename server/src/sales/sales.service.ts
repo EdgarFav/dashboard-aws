@@ -46,10 +46,12 @@ export class SalesService {
 
       await this.salesRepository.save(sales);
       return { count: sales.length };
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof BadRequestException) throw error;
+      const message =
+        error instanceof Error ? error.message : 'Error desconocido';
       throw new BadRequestException(
-        'Error al procesar el archivo CSV: ' + error.message,
+        'Error al procesar el archivo CSV: ' + message,
       );
     }
   }
@@ -128,6 +130,56 @@ export class SalesService {
         totalTransactions,
         averageOrderValue,
       },
+    };
+  }
+
+  async getForecast() {
+    const sales = await this.salesRepository.find({
+      order: { date: 'ASC' },
+    });
+
+    if (sales.length < 5) {
+      return {
+        forecast: [],
+        message:
+          'Se requieren al menos 5 registros de venta para generar un pronóstico confiable.',
+      };
+    }
+
+    // 1. Group by day
+    const dailyData: Record<string, number> = {};
+    sales.forEach((sale) => {
+      const dateStr = new Date(sale.date).toISOString().split('T')[0];
+      dailyData[dateStr] = (dailyData[dateStr] || 0) + Number(sale.amount);
+    });
+
+    const sortedDates = Object.keys(dailyData).sort();
+    const values = sortedDates.map((date) => dailyData[date]);
+
+    // 2. Simple Moving Average (SMA) for next 7 points
+    const windowSize = Math.min(values.length, 7);
+    const forecast: { date: string; value: number }[] = [];
+    const lastDate = new Date(sortedDates[sortedDates.length - 1]);
+
+    for (let i = 1; i <= 7; i++) {
+      const lastNValues = values.slice(-windowSize);
+      const average = lastNValues.reduce((a, b) => a + b, 0) / windowSize;
+
+      const nextDate = new Date(lastDate);
+      nextDate.setDate(lastDate.getDate() + i);
+
+      forecast.push({
+        date: nextDate.toISOString().split('T')[0],
+        value: Math.round(average * 100) / 100,
+      });
+
+      // Update values to include the new prediction for recursive forecasting (optional)
+      values.push(average);
+    }
+
+    return {
+      historical: sortedDates.map((date) => ({ date, value: dailyData[date] })),
+      forecast,
     };
   }
 }

@@ -7,6 +7,7 @@ import OverviewSection from './dashboard/sections/OverviewSection';
 import DataUploadSection from './dashboard/sections/DataUploadSection';
 import UsersSection from './dashboard/sections/UsersSection';
 import AnalyticsSection from './dashboard/sections/AnalyticsSection';
+import ForecastSection from './dashboard/sections/ForecastSection';
 
 function App() {
   return (
@@ -24,14 +25,7 @@ function App() {
         >
           <Route index element={<OverviewSection />} />
           <Route path="upload" element={<DataUploadSection />} />
-          <Route
-            path="forecast"
-            element={
-              <div className="p-8 bg-white rounded-2xl border border-slate-100 shadow-sm text-center text-slate-400">
-                Panel de Pronósticos (Próximamente)
-              </div>
-            }
-          />
+          <Route path="forecast" element={<ForecastSection />} />
           <Route path="analytics" element={<AnalyticsSection />} />
           <Route path="users" element={<UsersSection />} />
         </Route>

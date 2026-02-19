@@ -41,6 +41,17 @@ export const getAnalyticsMethod = async (): Promise<AnalyticsData> => {
   return response.data;
 };
 
+export interface ForecastData {
+  historical: { date: string; value: number }[];
+  forecast: { date: string; value: number }[];
+  message?: string;
+}
+
+export const getForecastMethod = async (): Promise<ForecastData> => {
+  const response = await apiClient.get<ForecastData>('sales/forecast');
+  return response.data;
+};
+
 export const uploadSalesMethod = async (file: File) => {
   const formData = new FormData();
   formData.append('file', file);
