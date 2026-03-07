@@ -8,7 +8,7 @@ async function bootstrap() {
   // Configuración de CORS
   app.enableCors({
     // origin: 'http://localhost:5173', // El puerto de tu cliente Vite
-    origin: 'https://dashboard-aws-eight.vercel.app/',
+    origin: 'https://dashboard-aws-eight.vercel.app',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
