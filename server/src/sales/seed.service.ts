@@ -10,31 +10,46 @@ export class SeedService implements OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap() {
+    // Solo ejecutar seed en desarrollo
+    if (process.env.NODE_ENV === 'production') {
+      console.log('⏭️  Seed desactivado en producción');
+      return;
+    }
+
+    console.log('🌱 Iniciando seed...');
     await this.seedUsers();
     await this.seedSales();
   }
 
   private async seedUsers() {
     const users = await this.usersService.findAll();
-    if (users.length > 0) {
-      console.log('Users already seeded.');
+    if (users.length > 1) {
+      // Ya hay más de 1 usuario (el sistema)
+      console.log('✅ Usuarios ya existen');
       return;
     }
 
-    console.log('Seeding users...');
+    console.log('🌱 Creando usuarios de ejemplo...');
     await this.usersService.create('admin@example.com', 'admin123', 'admin');
     await this.usersService.create('user@example.com', 'user123', 'user');
-    console.log('Users seeded successfully!');
+    console.log('✅ Usuarios creados exitosamente!');
   }
 
   private async seedSales() {
-    const sales = await this.salesService.findAll();
-    if (sales.length > 0) {
-      console.log('Sales already seeded.');
+    // Verificar si existe data usando el admin del seed
+    const adminUser = await this.usersService.findByEmail('admin@example.com');
+    if (!adminUser) {
+      console.log('❌ Usuario admin no encontrado para seed');
       return;
     }
 
-    console.log('Seeding sales...');
+    const sales = await this.salesService.findAll(adminUser.id, 'admin');
+    if (sales.length > 0) {
+      console.log('✅ Sales ya existen');
+      return;
+    }
+
+    console.log('🌱 Insertando datos de ventas...');
     const salesData = [
       {
         productName: 'Laptop XPS',
@@ -99,8 +114,8 @@ export class SeedService implements OnApplicationBootstrap {
     ];
 
     for (const data of salesData) {
-      await this.salesService.create(data);
+      await this.salesService.create(data, adminUser.id);
     }
-    console.log('Sales seeded successfully!');
+    console.log('✅ Datos de ventas insertados exitosamente!');
   }
 }

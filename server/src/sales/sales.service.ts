@@ -19,9 +19,14 @@ export class SalesService {
     private salesRepository: Repository<Sale>,
   ) {}
 
-  // ... (findAll, getStats, create, getAnalytics methods remain same)
+  private getWhereClause(userId: number, userRole: string) {
+    return userRole === 'admin' ? {} : { uploadedById: userId };
+  }
 
-  async uploadFromCsv(fileBuffer: Buffer): Promise<{ count: number }> {
+  async uploadFromCsv(
+    fileBuffer: Buffer,
+    uploadedById: number,
+  ): Promise<{ count: number }> {
     try {
       const records: SaleRecord[] = parse(fileBuffer, {
         columns: true,
@@ -41,6 +46,7 @@ export class SalesService {
           category: record.category,
           customerEmail: record.customerEmail || undefined,
           date: record.date ? new Date(record.date) : new Date(),
+          uploadedById,
         });
       });
 
@@ -56,14 +62,19 @@ export class SalesService {
     }
   }
 
-  async findAll(): Promise<Sale[]> {
+  async findAll(userId: number, userRole: string): Promise<Sale[]> {
+    const where = this.getWhereClause(userId, userRole);
     return this.salesRepository.find({
+      where,
       order: { date: 'DESC' },
     });
   }
 
-  async getStats() {
-    const sales = await this.salesRepository.find();
+  async getStats(userId: number, userRole: string) {
+    const where = this.getWhereClause(userId, userRole);
+    const sales = await this.salesRepository.find({
+      where,
+    });
     const totalRevenue = sales.reduce(
       (sum, sale) => sum + Number(sale.amount),
       0,
@@ -85,13 +96,18 @@ export class SalesService {
     };
   }
 
-  async create(saleData: Partial<Sale>): Promise<Sale> {
-    const sale = this.salesRepository.create(saleData);
+  async create(saleData: Partial<Sale>, uploadedById: number): Promise<Sale> {
+    const sale = this.salesRepository.create({
+      ...saleData,
+      uploadedById,
+    });
     return this.salesRepository.save(sale);
   }
 
-  async getAnalytics() {
+  async getAnalytics(userId: number, userRole: string) {
+    const where = this.getWhereClause(userId, userRole);
     const sales = await this.salesRepository.find({
+      where,
       order: { date: 'ASC' },
     });
 
@@ -133,8 +149,10 @@ export class SalesService {
     };
   }
 
-  async getForecast() {
+  async getForecast(userId: number, userRole: string) {
+    const where = this.getWhereClause(userId, userRole);
     const sales = await this.salesRepository.find({
+      where,
       order: { date: 'ASC' },
     });
 

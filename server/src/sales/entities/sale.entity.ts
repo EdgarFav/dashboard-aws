@@ -3,7 +3,9 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  ManyToOne,
 } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('sales')
 export class Sale {
@@ -24,4 +26,10 @@ export class Sale {
 
   @Column({ nullable: true })
   customerEmail: string;
+
+  @ManyToOne(() => User, { eager: false, onDelete: 'CASCADE' })
+  uploadedBy: User;
+
+  @Column()
+  uploadedById: number;
 }

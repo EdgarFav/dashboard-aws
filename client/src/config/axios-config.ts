@@ -3,9 +3,6 @@ import axios from 'axios';
 export const apiClient = axios.create({
   timeout: 10000,
   baseURL: import.meta.env.VITE_API_BACKEND,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 apiClient.interceptors.request.use(
@@ -13,6 +10,10 @@ apiClient.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    // Solo setear Content-Type si no es FormData (para uploads)
+    if (!config.data || !(config.data instanceof FormData)) {
+      config.headers['Content-Type'] = 'application/json';
     }
     return config;
   },

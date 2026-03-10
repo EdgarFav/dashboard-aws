@@ -14,6 +14,7 @@ import { SalesService } from './sales.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { CurrentUser } from '../auth/current-user.decorator';
 import { CreateSaleDto } from './dto/create-sale.dto';
 
 @Controller('sales')
@@ -22,38 +23,43 @@ export class SalesController {
   constructor(private salesService: SalesService) {}
 
   @Post('upload')
-  @Roles('admin')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile() file?: Express.Multer.File) {
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: any,
+  ) {
     if (!file) {
       throw new BadRequestException('No se ha subido ningún archivo');
     }
-    return this.salesService.uploadFromCsv(file.buffer);
+    return this.salesService.uploadFromCsv(file.buffer, user.userId);
   }
 
   @Get()
-  async findAll() {
-    return this.salesService.findAll();
+  async findAll(@CurrentUser() user: any) {
+    return this.salesService.findAll(user.userId, user.role);
   }
 
   @Get('stats')
-  async getStats() {
-    return this.salesService.getStats();
+  async getStats(@CurrentUser() user: any) {
+    return this.salesService.getStats(user.userId, user.role);
   }
 
   @Get('analytics')
-  async getAnalytics() {
-    return this.salesService.getAnalytics();
+  async getAnalytics(@CurrentUser() user: any) {
+    return this.salesService.getAnalytics(user.userId, user.role);
   }
 
   @Get('forecast')
-  async getForecast() {
-    return this.salesService.getForecast();
+  async getForecast(@CurrentUser() user: any) {
+    return this.salesService.getForecast(user.userId, user.role);
   }
 
   @Post()
   @Roles('admin')
-  async create(@Body(ValidationPipe) createSaleDto: CreateSaleDto) {
-    return this.salesService.create(createSaleDto);
+  async create(
+    @Body(ValidationPipe) createSaleDto: CreateSaleDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.salesService.create(createSaleDto, user.userId);
   }
 }
